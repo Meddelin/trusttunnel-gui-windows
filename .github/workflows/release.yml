@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  CLI_VERSION: "v1.0.19"
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -36,8 +39,8 @@ jobs:
         run: |
           Write-Host "Downloading latest TrustTunnel CLI..."
 
-          # Get latest release info from TrustTunnelClient
-          $apiUrl = "https://api.github.com/repos/TrustTunnel/TrustTunnelClient/releases/latest"
+          # Get pinned CLI release from TrustTunnelClient
+          $apiUrl = "https://api.github.com/repos/TrustTunnel/TrustTunnelClient/releases/tags/$env:CLI_VERSION"
           $release = Invoke-RestMethod -Uri $apiUrl
 
           # Find Windows x64 asset

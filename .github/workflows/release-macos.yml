@@ -8,6 +8,9 @@ on:
 permissions:
   contents: write
 
+env:
+  CLI_VERSION: "v1.0.19"
+
 jobs:
   build-macos:
     runs-on: macos-latest
@@ -36,9 +39,9 @@ jobs:
         run: |
           echo "Downloading latest TrustTunnel CLI for macOS..."
 
-          # Get latest release info
-          API_URL="https://api.github.com/repos/TrustTunnel/TrustTunnelClient/releases/latest"
-          RELEASE_JSON=$(curl -fsSL "$API_URL")
+          # Get pinned CLI release
+          API_URL="https://api.github.com/repos/TrustTunnel/TrustTunnelClient/releases/tags/${CLI_VERSION}"
+          RELEASE_JSON=$(curl -fsSL -H "Authorization: Bearer $GITHUB_TOKEN" -H "Accept: application/vnd.github+json" "$API_URL")
 
           # Find macOS universal asset
           DOWNLOAD_URL=$(echo "$RELEASE_JSON" | grep -o '"browser_download_url": *"[^"]*macos[^"]*universal[^"]*"' | head -1 | cut -d'"' -f4)
@@ -82,6 +85,8 @@ jobs:
 
           echo "CLI downloaded successfully: $(wc -c < client/trusttunnel_client) bytes"
           echo "$CLI_VERSION" > cli_version.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create release package
         run: |
@@ -166,7 +171,7 @@ jobs:
             ### Known Limitations
 
             - No code signing (Gatekeeper will block — use Right-click → Open)
-            - TUN creation may require sudo
+            - On first VPN connect, a macOS password dialog appears once to grant TUN access (no terminal needed)
             - Split tunnel app detection is best-effort
 
             ### Requirements
