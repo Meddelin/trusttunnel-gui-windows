@@ -203,7 +203,7 @@ jobs:
 
       - name: Create ZIP archive
         run: |
-          $version = "${{ github.ref_name }}"
+          $version = "${{ github.ref_name }}" -replace '/', '-'
           $archiveName = "Trusty-Windows-$version.zip"
           Compress-Archive -Path .\release-package\* -DestinationPath $archiveName -Force
           Write-Host "Created archive: $archiveName"
@@ -272,9 +272,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload build artifacts
+        id: upload
+        run: |
+          $safeRef = "${{ github.ref_name }}" -replace '/', '-'
+          echo "safe_ref=$safeRef" >> $env:GITHUB_OUTPUT
+        shell: pwsh
+
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windows-build-${{ github.ref_name }}
+          name: windows-build-${{ steps.upload.outputs.safe_ref }}
           path: |
             Trusty-Windows-*.zip
           retention-days: 30
