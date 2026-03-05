@@ -94,7 +94,7 @@ jobs:
       - name: Create release package
         run: |
           CLI_VERSION=$(cat cli_version.txt)
-          VERSION="${GITHUB_REF_NAME}"
+          VERSION="${GITHUB_REF_NAME//\//-}"
 
           mkdir -p release-package/client
 
